@@ -21,7 +21,7 @@ class TestEspecialidad(unittest.TestCase):
         texto = str(esp)
         self.assertIn("Neurología", texto)
         self.assertIn("lunes", texto)
-        self.assertIn("miércoles", texto)
+        self.assertIn("miercoles", texto)
 
 if __name__ == "__main__":
     unittest.main()
