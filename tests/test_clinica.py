@@ -9,6 +9,7 @@ from modelo.excepciones import (
     MedicoNoDisponibleException,
     TurnoOcupadoException,
     RecetaInvalidaException,
+    MedicoNoEncontradoException
 )
 
 class TestClinica(unittest.TestCase):
@@ -52,6 +53,84 @@ class TestClinica(unittest.TestCase):
         self.clinica.agendar_turno("99999999", "MP1234", "Clínica médica", fecha)
         with self.assertRaises(TurnoOcupadoException):
             self.clinica.agendar_turno("99999999", "MP1234", "Clínica médica", fecha)
+    
+    def test_no_se_permite_paciente_duplicado(self):
+        paciente1 = Paciente("Nicolás", "45718427", "04/05/2004")
+        paciente2 = Paciente("Roberto", "45718427", "02/02/2001")
+        self.clinica.agregar_paciente(paciente1)
+        with self.assertRaises(ValueError):
+            self.clinica.agregar_paciente(paciente2)
+
+    def test_no_se_permite_medico_duplicado(self):
+        medico1 = Medico("Claudia Elaskar", "MP9999")
+        medico2 = Medico("Luciano Miranda", "MP9999")
+        self.clinica.agregar_medico(medico1)
+        with self.assertRaises(ValueError):
+            self.clinica.agregar_medico(medico2)
+
+    def test_no_se_puede_agendar_turno_con_medico_inexistente(self):
+        paciente = Paciente("Test Paciente", "100", "01/01/2000")
+        self.clinica.agregar_paciente(paciente)
+
+        with self.assertRaises(MedicoNoEncontradoException):
+            self.clinica.agendar_turno("100", "MATRI_INEXISTENTE", "Cardiología", datetime(2025, 6, 18, 10, 0))
+    
+    def test_no_se_puede_agendar_turno_duplicado(self):
+        paciente = Paciente("Test Paciente", "101", "01/01/2000")
+        medico = Medico("Test Médico", "MP777")
+        esp = Especialidad("Cardiología", ["miércoles"])
+        medico.agregar_especialidad(esp)
+
+        self.clinica.agregar_paciente(paciente)
+        self.clinica.agregar_medico(medico)
+
+        fecha = datetime(2025, 6, 18, 10, 0)  # miércoles
+        self.clinica.agendar_turno("101", "MP777", "Cardiología", fecha)
+
+        with self.assertRaises(TurnoOcupadoException):
+            self.clinica.agendar_turno("101", "MP777", "Cardiología", fecha)
+
+    def test_turno_especialidad_o_dia_incorrecto(self):
+        paciente = Paciente("Paciente A", "102", "01/01/2000")
+        medico = Medico("Médico B", "MP778")
+        esp = Especialidad("Dermatología", ["lunes"])  # solo lunes
+
+        self.clinica.agregar_paciente(paciente)
+        self.clinica.agregar_medico(medico)
+        medico.agregar_especialidad(esp)
+
+        fecha = datetime(2025, 6, 18, 10, 0)  # miércoles
+        with self.assertRaises(MedicoNoDisponibleException):
+            self.clinica.agendar_turno("102", "MP778", "Dermatología", fecha)
+
+        fecha_lunes = datetime(2025, 6, 16, 10, 0)  # lunes
+        with self.assertRaises(MedicoNoDisponibleException):
+            self.clinica.agendar_turno("102", "MP778", "Cardiología", fecha_lunes)
+
+    def test_no_se_puede_emitir_receta_sin_medicamentos(self):
+        paciente = Paciente("Paciente A", "300", "01/01/2000")
+        medico = Medico("Médico B", "MP300")
+        self.clinica.agregar_paciente(paciente)
+        self.clinica.agregar_medico(medico)
+
+        with self.assertRaises(RecetaInvalidaException):
+            self.clinica.emitir_receta("300", "MP300", [])
+
+    def test_no_se_puede_emitir_receta_a_paciente_inexistente(self):
+        medico = Medico("Médico C", "MP301")
+        self.clinica.agregar_medico(medico)
+
+        with self.assertRaises(PacienteNoEncontradoException):
+            self.clinica.emitir_receta("999", "MP301", ["Ibuprofeno"])
+
+    def test_no_se_puede_emitir_receta_con_medico_inexistente(self):
+        paciente = Paciente("Paciente B", "301", "01/01/2000")
+        self.clinica.agregar_paciente(paciente)
+
+        with self.assertRaises(MedicoNoDisponibleException):
+            self.clinica.emitir_receta("301", "MP404", ["Amoxicilina"])
+
+
 
 if __name__ == "__main__":
     unittest.main()

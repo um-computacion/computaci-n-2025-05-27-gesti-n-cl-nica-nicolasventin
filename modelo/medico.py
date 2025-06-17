@@ -2,12 +2,24 @@ import unicodedata
 
 class Medico:
     def __init__(self, nombre, matricula):
+        if not nombre.strip():
+            raise ValueError("El nombre del médico no puede estar vacío")
+        if not matricula.strip():
+            raise ValueError("La matrícula no puede estar vacía")
+
         self.__nombre__ = nombre
         self.__matricula__ = matricula
         self.__especialidades__ = []
 
     def agregar_especialidad(self, especialidad):
+        for esp in self.__especialidades__:
+            if self.__normalizar_texto(esp.obtener_especialidad()) == self.__normalizar_texto(especialidad.obtener_especialidad()):
+                raise ValueError(f"El médico ya tiene la especialidad '{especialidad.obtener_especialidad()}'")
         self.__especialidades__.append(especialidad)
+    
+    def __normalizar_texto(self, texto):
+        texto = texto.strip().lower()
+        return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("utf-8")
 
     def obtener_matricula(self):
         return self.__matricula__
@@ -24,8 +36,7 @@ class Medico:
 
     def __normalizar_dia(self, dia):
         dia = dia.strip().lower()
-        dia = unicodedata.normalize("NFKD", dia).encode("ascii", "ignore").decode("utf-8")
-        return dia
+        return unicodedata.normalize("NFKD", dia).encode("ascii", "ignore").decode("utf-8")
 
     def __str__(self):
         especialidades_str = "\n  ".join(str(e) for e in self.__especialidades__)

@@ -19,11 +19,15 @@ class Clinica:
 
     def agregar_paciente(self, paciente):
         dni = paciente.obtener_dni()
+        if dni in self.__pacientes__:
+            raise ValueError(f"Ya existe un paciente con el DNI {dni}")
         self.__pacientes__[dni] = paciente
         self.__historias_clinicas__[dni] = HistoriaClinica(paciente)
 
     def agregar_medico(self, medico):
         matricula = medico.obtener_matricula()
+        if matricula in self.__medicos__:
+            raise ValueError(f"Ya existe un médico con la matrícula {matricula}")
         self.__medicos__[matricula] = medico
 
     def obtener_turnos(self):

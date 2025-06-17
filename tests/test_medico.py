@@ -21,5 +21,22 @@ class TestMedico(unittest.TestCase):
         self.assertEqual(medico.obtener_especialidad_para_dia("jueves"), "Pediatría")
         self.assertIsNone(medico.obtener_especialidad_para_dia("lunes"))
 
+    def test_no_se_puede_agregar_misma_especialidad_dos_veces(self):
+        medico = Medico("Luciano Miranda", "MP111")
+        esp1 = Especialidad("Cardiología", ["lunes", "miércoles"])
+        esp2 = Especialidad("cardiologia", ["martes"])
+
+        medico.agregar_especialidad(esp1)
+        with self.assertRaises(ValueError):
+            medico.agregar_especialidad(esp2)
+    
+    def test_no_se_puede_crear_medico_con_nombre_vacio(self):
+        with self.assertRaises(ValueError):
+            Medico("", "MP123")
+
+    def test_no_se_puede_crear_medico_con_matricula_vacia(self):
+        with self.assertRaises(ValueError):
+            Medico("Claudia", "")
+
 if __name__ == "__main__":
     unittest.main()

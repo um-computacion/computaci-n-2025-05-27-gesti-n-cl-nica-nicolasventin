@@ -53,7 +53,7 @@ Contiene las clases principales:
 
 ---
 
-## 🔤 Estructuras y conceptos utilizados
+##  Estructuras y conceptos utilizados
 
 - **Diccionarios**: para almacenar pacientes (`dni → Paciente`), médicos (`matrícula → Médico`), y acceder rápidamente a sus datos.
 - **Listas**: para guardar turnos, recetas y pasos del CLI.
@@ -62,3 +62,38 @@ Contiene las clases principales:
 - **Bucles `for`**: para mostrar listas de pacientes, médicos, turnos o especialidades.
 - **Funciones personalizadas**: para normalizar textos, validar formatos y encapsular lógica de negocio.
 
+##  Índice de archivos de test
+
+A continuación se detalla qué funcionalidades testea cada archivo dentro del directorio `tests/`:
+
+### `test_paciente.py`
+- Registro válido de paciente.
+- ❌ No se permite crear paciente con:
+  - Nombre vacío
+  - DNI vacío
+  - Fecha de nacimiento vacía
+
+### `test_medico.py`
+- Registro válido de médico.
+- ❌ No se permite crear médico con:
+  - Nombre vacío
+  - Matrícula vacía
+- ❌ No se puede agregar una especialidad duplicada.
+
+### `test_clinica.py`
+- Registro de pacientes y médicos.
+- ❌ No se permite agregar pacientes/médicos duplicados.
+- ❌ No se puede agendar turno si:
+  - El médico no existe.
+  - El paciente no existe.
+  - El turno está duplicado.
+  - El médico no atiende esa especialidad.
+  - El médico no trabaja ese día.
+- ❌ No se puede emitir receta si:
+  - No hay medicamentos.
+  - El paciente no existe.
+  - El médico no existe.
+- ✅ Confirmación de que turnos y recetas se guardan en la historia clínica.
+
+### `test_historia_clinica.py`
+- ✅ Confirma que los turnos y recetas emitidos se almacenan correctamente.
